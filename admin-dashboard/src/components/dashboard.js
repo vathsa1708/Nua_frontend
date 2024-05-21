@@ -79,6 +79,16 @@ const Dashboard = () => {
     setEditIndex(index);
     setEditedData({ ...books[index] });
   };
+  const handleDownloadCSV = () => {
+    const csvContent = "data:text/csv;charset=utf-8," + books.map(book => Object.values(book).join(',')).join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "books.csv");
+    document.body.appendChild(link);
+    link.click();
+  };
+  
 
   const handleSave = () => {
     const updatedBooks = [...books];
@@ -232,6 +242,9 @@ const Dashboard = () => {
               className="px-4 py-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
             >
               Next
+            </button>
+<button onClick={handleDownloadCSV} className="px-4 py-2 bg-green-500 text-white rounded-md ml-4">
+              Download CSV
             </button>
           </div>
         </div>

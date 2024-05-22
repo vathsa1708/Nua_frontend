@@ -111,10 +111,15 @@ const Dashboard = () => {
   };
 
   const handleSave = () => {
-    const updatedBooks = [...books];
-    updatedBooks[editIndex] = editedData;
-    setBooks(updatedBooks);
+    const updatedSortedBooks = [...sortedBooks];
+    updatedSortedBooks[editIndex] = editedData;
+    setSortedBooks(updatedSortedBooks);
     setEditIndex(-1); // Reset editIndex after saving changes
+
+    // Optional: If you also want to update the original 'books' state, you can do it like this:
+    // const updatedBooks = [...books];
+    // updatedBooks[editIndex] = editedData;
+    // setBooks(updatedBooks);
   };
 
   const handleInputChange = (e, field) => {
@@ -161,102 +166,105 @@ const Dashboard = () => {
                   </td>
                   <td className="p-4 text-center">
                     {editIndex === index ? (
-                      <input type="text" value={editedData.author_name} onChange={(e) => handleInputChange
-                        (e, 'author_name')} style={{ width: '100%' }} />
-                      ) : (
+                      <input type="text" value={editedData.author_name} onChange={(e) => handleInputChange(e, 'author_name')} style={{ width: '100%' }} />
+                    ) : (
                       book.author_name
-                      )}
-                      </td>
-                      <td className="p-4 text-center">
-                      {editIndex === index ? (
+                    )}
+                  </
+                  td>
+                  <td className="p-4 text-center">
+                    {editIndex === index ? (
                       <input type="text" value={editedData.ratings_average} onChange={(e) => handleInputChange(e, 'ratings_average')} style={{ width: '100%' }} />
-                      ) : (
+                    ) : (
                       book.ratings_average
-                      )}
-                      </td>
-                      <td className="p-4 text-center">
-                      {editIndex === index ? (
+                    )}
+                  </td>
+                  <td className="p-4 text-center">
+                    {editIndex === index ? (
                       <input type="text" value={editedData.first_publish_year} onChange={(e) => handleInputChange(e, 'first_publish_year')} style={{ width: '100%' }} />
-                      ) : (
+                    ) : (
                       book.first_publish_year
-                      )}
-                      </td>
-                      <td className="p-4 text-center">
-                      {expanded[index] || book.subject.length <= 100 ? ( book.subject) : (`${book.subject.slice(0, 100)}...`)}
-
-                      {book.subject.length > 100 && (
+                    )}
+                  </td>
+                  <td className="p-4 text-center">
+                    {expanded[index] || book.subject.length <= 100 ? (
+                      book.subject
+                    ) : (
+                      `${book.subject.slice(0, 100)}...`
+                    )}
+                    {book.subject.length > 100 && (
                       <button onClick={() => handleToggleExpand(index)} className="text-blue-500 ml-2">
-                      {expanded[index] ? "Read Less" : "Read More"}
+                        {expanded[index] ? "Read Less" : "Read More"}
                       </button>
-                      )}
-                      </td>
-                      <td className="p-4 text-center">
-                      {editIndex === index ? (
+                    )}
+                  </td>
+                  <td className="p-4 text-center">
+                    {editIndex === index ? (
                       <input type="text" value={editedData.author_birth_date} onChange={(e) => handleInputChange(e, 'author_birth_date')} style={{ width: '100%' }} />
-                      ) : (
+                    ) : (
                       book.author_birth_date
-                      )}
-                      </td>
-                      <td className="p-4 text-center">
-                      {editIndex === index ? (
+                    )}
+                  </td>
+                  <td className="p-4 text-center">
+                    {editIndex === index ? (
                       <input type="text" value={editedData.author_top_work} onChange={(e) => handleInputChange(e, 'author_top_work')} style={{ width: '100%' }} />
-                      ) : (
+                    ) : (
                       book.author_top_work
-                      )}
-                      </td>
-                      <td className="p-4 text-center">
-                      {editIndex === index ? (
+                    )}
+                  </td>
+                  <td className="p-4 text-center">
+                    {editIndex === index ? (
                       <button onClick={handleSave}>Save</button>
-                      ) : (
+                    ) : (
                       <FaEdit onClick={() => handleEdit(index)} style={{ cursor: 'pointer' }} />
-                      )}
-                      </td>
-                      </tr>
-                      ))}
-                      </tbody>
-                      </table>
-                      </div>
-                      <div className="flex justify-between mt-4 p-4 items-center">
-                      <div className="flex items-center">
-                      <span className="mr-2">Rows per page:</span>
-                      <select
-                      value={rowsPerPage}
-                      onChange={(e) => setRowsPerPage(parseInt(e.target.value, 10))}
-                      className="px-2 py-1 border border-gray-300 rounded-md"
-                      >
-                      {[10, 25, 50, 100].map((rows) => (
-                      <option key={rows} value={rows}>
-                      {rows}
-                      </option>
-                      ))}
-                      </select>
-                      </div>
-                      <div>
-                      Page {page + 1} of {Math.ceil(sortedBooks.length / rowsPerPage)}
-                      </div>
-                      <div className="flex items-center">
-                      <button
-                      onClick={() => setPage(page - 1)}
-                      disabled={page === 0}
-                      className="px-4 py-2 mr-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
-                      >
-                      Previous
-                      </button>
-                      <button
-                      onClick={() => setPage(page + 1)}
-                      disabled={page >= Math.ceil(sortedBooks.length / rowsPerPage) - 1}
-                      className="px-4 py-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
-                      >
-                      Next
-                      </button>
-                      <button onClick={handleDownloadCSV} className="px-4 py-2 bg-green-500 text-white rounded-md ml-4">
-                      Download CSV
-                      </button>
-                      </div>
-                      </div>
-                      </div>
-                      </div>
-                      );
-                      };
-                      
-                      export default Dashboard;
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="flex justify-between mt-4 p-4 items-center">
+          <div className="flex items-center">
+            <span className="mr-2">Rows per page:</span>
+            <select
+              value={rowsPerPage}
+              onChange={(e) => setRowsPerPage(parseInt(e.target.value, 10))}
+              className="px-2 py-1 border border-gray-300 rounded-md"
+            >
+              {[10, 25, 50, 100].map((rows) => (
+                <option key={rows} value={rows}>
+                  {rows}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            Page {page + 1} of {Math.ceil(sortedBooks.length / rowsPerPage)}
+          </div>
+          <div className="flex items-center">
+            <button
+              onClick={() => setPage(page - 1)}
+              disabled={page === 0}
+              className="px-4 py-2 mr-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => setPage(page + 1)}
+              disabled={page >= Math.ceil(sortedBooks.length / rowsPerPage) - 1}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
+            >
+              Next
+            </button>
+            <button onClick={handleDownloadCSV} className="px-4 py-2 bg-green-500 text-white rounded-md ml-4">
+              Download CSV
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;

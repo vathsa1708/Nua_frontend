@@ -65,7 +65,7 @@ Contributions are welcome! Please fork the repository and submit a pull request 
 
 ## Deployment
 
-The application is deployed on Vercel. You can access it [here](https://nua-frontend-2iyt.vercel.app/).
+The application is deployed on Vercel. You can access it [here](https://nua-frontend.vercel.app/).
 
 ## Contact
 If you have any questions or feedback, please feel free to contact the repository owner.

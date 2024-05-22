@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { FaEdit } from 'react-icons/fa';
 
@@ -12,10 +12,30 @@ const Dashboard = () => {
   const [expanded, setExpanded] = useState({});
   const [editIndex, setEditIndex] = useState(-1);
   const [editedData, setEditedData] = useState({});
+  const [sortedBooks, setSortedBooks] = useState([]);
+
+  const handleSortAndFilter = useCallback(() => {
+    let sortedBooks = [...books];
+
+    sortedBooks = sortedBooks.filter(book => book.author_name.toLowerCase().includes(search.toLowerCase()));
+
+    sortedBooks = sortedBooks.sort((a, b) => {
+      const compareValueA = a[orderBy] || ''; // Handle cases where data is missing
+      const compareValueB = b[orderBy] || ''; // Handle cases where data is missing
+      const comparison = order === 'asc' ? compareValueA.localeCompare(compareValueB) : compareValueB.localeCompare(compareValueA);
+      return comparison;
+    });
+
+    setSortedBooks(sortedBooks);
+  }, [books, order, orderBy, search]);
+
+  useEffect(() => {
+    handleSortAndFilter();
+  }, [books, order, orderBy, search, handleSortAndFilter]);
 
   useEffect(() => {
     fetchBooks();
-  }, [page, rowsPerPage, order, orderBy, search]);
+  }, [page, rowsPerPage]);
 
   const fetchBooks = async () => {
     try {
@@ -77,10 +97,11 @@ const Dashboard = () => {
 
   const handleEdit = (index) => {
     setEditIndex(index);
-    setEditedData({ ...books[index] });
+    setEditedData({ ...sortedBooks[index] });
   };
+
   const handleDownloadCSV = () => {
-    const csvContent = "data:text/csv;charset=utf-8," + books.map(book => Object.values(book).join(',')).join('\n');
+    const csvContent = "data:text/csv;charset=utf-8," + sortedBooks.map(book => Object.values(book).join(',')).join('\n');
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
@@ -88,7 +109,6 @@ const Dashboard = () => {
     document.body.appendChild(link);
     link.click();
   };
-  
 
   const handleSave = () => {
     const updatedBooks = [...books];
@@ -103,17 +123,6 @@ const Dashboard = () => {
       [field]: e.target.value,
     }));
   };
-
-  const filteredBooks = books.filter(book => {
-    return book.author_name.toLowerCase().includes(search.toLowerCase());
-  });
-
-  const sortedBooks = filteredBooks.sort((a, b) => {
-    const compareValueA = a[orderBy] || ''; // Handle cases where data is missing
-    const compareValueB = b[orderBy] || ''; // Handle cases where data is missing
-    const comparison = order === 'asc' ? compareValueA.localeCompare(compareValueB) : compareValueB.localeCompare(compareValueA);
-    return comparison;
-  });
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100 p-8">
@@ -145,112 +154,109 @@ const Dashboard = () => {
                 <tr key={index} className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}>
                   <td className="p-4 text-center">
                     {editIndex === index ? (
-                      <input type="text" value={editedData.title} onChange={(e) => handleInputChange(e, 'title')} />
+                      <input type="text" value={editedData.title} onChange={(e) => handleInputChange(e, 'title')} style={{ width: '100%' }} />
                     ) : (
                       book.title
                     )}
                   </td>
                   <td className="p-4 text-center">
                     {editIndex === index ? (
-                      <input type="text" value={editedData.author_name} onChange={(e) => handleInputChange(e, 'author_name')} />
-                    ) : (
+                      <input type="text" value={editedData.author_name} onChange={(e) => handleInputChange
+                        (e, 'author_name')} style={{ width: '100%' }} />
+                      ) : (
                       book.author_name
-                    )}
-                  </td>
-                  <td className="p-4 text-center">
-                    {editIndex === index ? (
-                      <input type="text" value={editedData.ratings_average} onChange={(e) => handleInputChange(e, 'ratings_average')} />
-                    ) : (
+                      )}
+                      </td>
+                      <td className="p-4 text-center">
+                      {editIndex === index ? (
+                      <input type="text" value={editedData.ratings_average} onChange={(e) => handleInputChange(e, 'ratings_average')} style={{ width: '100%' }} />
+                      ) : (
                       book.ratings_average
-                    )}
-                  </td>
-                  <td className="p-4 text-center">
-                    {editIndex === index ? (
-                      <input type="text" value={editedData.first_publish_year} onChange={(e) => handleInputChange(e, 'first_publish_year')} />
-                    ) : (
+                      )}
+                      </td>
+                      <td className="p-4 text-center">
+                      {editIndex === index ? (
+                      <input type="text" value={editedData.first_publish_year} onChange={(e) => handleInputChange(e, 'first_publish_year')} style={{ width: '100%' }} />
+                      ) : (
                       book.first_publish_year
-                    )}
-                  </td>
-                  <td className="p-4 text-center">
-  {expanded[index] || book.subject.length <= 100 ? (
-    book.subject
-  ) : (
-    `${book.subject.slice(0, 100)}...`
-  )}
-  {book.subject.length > 100 && (
-    <button onClick={() => handleToggleExpand(index)} className="text-blue-500 ml-2">
-      {expanded[index] ? "Read Less" : "Read More"}
-    </button>
-  )}
-</td>
+                      )}
+                      </td>
+                      <td className="p-4 text-center">
+                      {expanded[index] || book.subject.length <= 100 ? ( book.subject) : (`${book.subject.slice(0, 100)}...`)}
 
-                  <td className="p-4 text-center">
-                    {editIndex === index ? (
-                      <input type="text" value={editedData.author_birth_date} onChange={(e) => handleInputChange(e, 'author_birth_date')} />
-                    ) : (
+                      {book.subject.length > 100 && (
+                      <button onClick={() => handleToggleExpand(index)} className="text-blue-500 ml-2">
+                      {expanded[index] ? "Read Less" : "Read More"}
+                      </button>
+                      )}
+                      </td>
+                      <td className="p-4 text-center">
+                      {editIndex === index ? (
+                      <input type="text" value={editedData.author_birth_date} onChange={(e) => handleInputChange(e, 'author_birth_date')} style={{ width: '100%' }} />
+                      ) : (
                       book.author_birth_date
-                    )}
-                  </td>
-                  <td className="p-4 text-center">
-                    {editIndex === index ? (
-                      <input type="text" value={editedData.author_top_work} onChange={(e) => handleInputChange(e, 'author_top_work')} />
-                    ) : (
+                      )}
+                      </td>
+                      <td className="p-4 text-center">
+                      {editIndex === index ? (
+                      <input type="text" value={editedData.author_top_work} onChange={(e) => handleInputChange(e, 'author_top_work')} style={{ width: '100%' }} />
+                      ) : (
                       book.author_top_work
-                    )}
-                  </td>
-                  <td className="p-4 text-center">
-                    {editIndex === index ? (
+                      )}
+                      </td>
+                      <td className="p-4 text-center">
+                      {editIndex === index ? (
                       <button onClick={handleSave}>Save</button>
-                    ) : (
+                      ) : (
                       <FaEdit onClick={() => handleEdit(index)} style={{ cursor: 'pointer' }} />
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <div className="flex justify-between mt-4 p-4 items-center">
-          <div className="flex items-center">
-            <span className="mr-2">Rows per page:</span>
-            <select
-              value={rowsPerPage}
-              onChange={(e) => setRowsPerPage(parseInt(e.target.value, 10))}
-              className="px-2 py-1 border border-gray-300 rounded-md"
-            >
-              {[10, 25, 50, 100].map((rows) => (
-                <option key={rows} value={rows}>
-                  {rows}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            Page {page + 1} of {Math.ceil(sortedBooks.length / rowsPerPage)}
-          </div>
-          <div className="flex items-center">
-            <button
-              onClick={() => setPage(page - 1)}
-              disabled={page === 0}
-              className="px-4 py-2 mr-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
-            >
-              Previous
-            </button>
-            <button
-              onClick={() => setPage(page + 1)}
-              disabled={page >= Math.ceil(sortedBooks.length / rowsPerPage) - 1}
-              className="px-4 py-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
-            >
-              Next
-            </button>
-<button onClick={handleDownloadCSV} className="px-4 py-2 bg-green-500 text-white rounded-md ml-4">
-              Download CSV
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default Dashboard;
+                      )}
+                      </td>
+                      </tr>
+                      ))}
+                      </tbody>
+                      </table>
+                      </div>
+                      <div className="flex justify-between mt-4 p-4 items-center">
+                      <div className="flex items-center">
+                      <span className="mr-2">Rows per page:</span>
+                      <select
+                      value={rowsPerPage}
+                      onChange={(e) => setRowsPerPage(parseInt(e.target.value, 10))}
+                      className="px-2 py-1 border border-gray-300 rounded-md"
+                      >
+                      {[10, 25, 50, 100].map((rows) => (
+                      <option key={rows} value={rows}>
+                      {rows}
+                      </option>
+                      ))}
+                      </select>
+                      </div>
+                      <div>
+                      Page {page + 1} of {Math.ceil(sortedBooks.length / rowsPerPage)}
+                      </div>
+                      <div className="flex items-center">
+                      <button
+                      onClick={() => setPage(page - 1)}
+                      disabled={page === 0}
+                      className="px-4 py-2 mr-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
+                      >
+                      Previous
+                      </button>
+                      <button
+                      onClick={() => setPage(page + 1)}
+                      disabled={page >= Math.ceil(sortedBooks.length / rowsPerPage) - 1}
+                      className="px-4 py-2 bg-blue-500 text-white rounded-md disabled:opacity-50"
+                      >
+                      Next
+                      </button>
+                      <button onClick={handleDownloadCSV} className="px-4 py-2 bg-green-500 text-white rounded-md ml-4">
+                      Download CSV
+                      </button>
+                      </div>
+                      </div>
+                      </div>
+                      </div>
+                      );
+                      };
+                      
+                      export default Dashboard;
